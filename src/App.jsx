@@ -30,13 +30,21 @@ export default function App() {
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
-  const [confirmacion, setConfirmacion] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
     if (pantalla === "pasar" && grupoActual) {
       cargarJanijim(grupoActual.id);
     }
   }, [pantalla, grupoActual]);
+
+  const mostrarYDesvanecer = () => {
+    setMostrarConfirmacion(true);
+    setFadeOut(false);
+    setTimeout(() => setFadeOut(true), 2000);
+    setTimeout(() => setMostrarConfirmacion(false), 2800);
+  };
 
   const cargarJanijim = async (grupoId) => {
     setCargando(true);
@@ -77,13 +85,10 @@ export default function App() {
       });
       const data = await res.json();
       if (data.ok) {
-        setConfirmacion(true);
-        setTimeout(() => {
-          setConfirmacion(false);
-          setPantalla("inicio");
-          setGrupoActual(null);
-          setMarcados(new Set());
-        }, 2500);
+        setPantalla("inicio");
+        setGrupoActual(null);
+        setMarcados(new Set());
+        mostrarYDesvanecer();
       } else {
         setError(data.error || "Error al guardar.");
       }
@@ -97,7 +102,6 @@ export default function App() {
     setGrupoActual(grupo);
     setFecha(getFechaHoy());
     setError("");
-    setConfirmacion(false);
     setPantalla("pasar");
   };
 
@@ -109,27 +113,17 @@ export default function App() {
     setError("");
   };
 
-  // ---- PANTALLA CONFIRMACION ----
-  if (confirmacion) return (
-    <div style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
-      <div style={{ background: "#00C853", borderRadius: 24, padding: "36px 28px", width: 260, display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-        <div style={{ width: 110, height: 110, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <path d="M10 32L26 50L54 16" stroke="#00C853" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 26, color: "#fff", textAlign: "center", lineHeight: 1.2 }}>
-          Presentismo<br />Actualizado
-        </div>
-      </div>
-    </div>
-  );
-
   // ---- PANTALLA INICIO ----
   if (pantalla === "inicio") return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", padding: "48px 24px 32px", boxSizing: "border-box" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; } .grupo-btn { transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; width: 100%; text-align: left; } .grupo-btn:active { transform: scale(0.97); opacity: 0.9; }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .grupo-btn { transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; width: 100%; text-align: left; }
+        .grupo-btn:active { transform: scale(0.97); opacity: 0.9; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .confirmacion-box { animation: ${fadeOut ? 'fadeOut 0.8s ease forwards' : 'none'}; }
+      `}</style>
 
       <div style={{ textAlign: "center", marginBottom: 36 }}>
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 38, color: "#fff", lineHeight: 1.2 }}>
@@ -137,7 +131,7 @@ export default function App() {
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {GRUPOS.map(g => (
           <button key={g.id} className="grupo-btn" onClick={() => irAPasar(g)}
             style={{ background: g.color, borderRadius: 18, padding: "18px 24px" }}>
@@ -145,6 +139,20 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      {mostrarConfirmacion && (
+        <div className="confirmacion-box"
+          style={{ marginTop: 20, background: "#00C853", borderRadius: 18, padding: "18px 24px", display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+              <path d="M10 32L26 50L54 16" stroke="#00C853" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 20, color: "#fff", lineHeight: 1.2 }}>
+            Presentismo<br />Actualizado
+          </div>
+        </div>
+      )}
 
       <div style={{ textAlign: "center", marginTop: 32 }}>
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13, color: "#555", marginBottom: 8, textTransform: "capitalize" }}>
@@ -161,7 +169,16 @@ export default function App() {
   // ---- PANTALLA PASAR PRESENTISMO ----
   if (pantalla === "pasar") return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", padding: "48px 24px 32px", boxSizing: "border-box" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; } .janij-row { cursor: pointer; transition: opacity 0.12s; } .janij-row:active { opacity: 0.7; } .back-btn { cursor: pointer; background: none; border: none; } .back-btn:active { opacity: 0.6; } .guardar-btn { cursor: pointer; border: none; transition: transform 0.15s; width: 100%; } .guardar-btn:active { transform: scale(0.97); }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .janij-row { cursor: pointer; transition: opacity 0.12s; }
+        .janij-row:active { opacity: 0.7; }
+        .back-btn { cursor: pointer; background: none; border: none; }
+        .back-btn:active { opacity: 0.6; }
+        .guardar-btn { cursor: pointer; border: none; transition: transform 0.15s; width: 100%; }
+        .guardar-btn:active { transform: scale(0.97); }
+      `}</style>
 
       <button className="back-btn" onClick={volver}
         style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 14, color: "#555", marginBottom: 20, textAlign: "left" }}>
