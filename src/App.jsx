@@ -30,7 +30,7 @@ export default function App() {
   const [cargando, setCargando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
-  const [exito, setExito] = useState("");
+  const [confirmacion, setConfirmacion] = useState(false);
 
   useEffect(() => {
     if (pantalla === "pasar" && grupoActual) {
@@ -77,13 +77,13 @@ export default function App() {
       });
       const data = await res.json();
       if (data.ok) {
-        setExito(`✓ ${data.marcados} de ${data.total} janijim marcados para el ${fecha}`);
+        setConfirmacion(true);
         setTimeout(() => {
-          setExito("");
+          setConfirmacion(false);
           setPantalla("inicio");
           setGrupoActual(null);
           setMarcados(new Set());
-        }, 2000);
+        }, 2500);
       } else {
         setError(data.error || "Error al guardar.");
       }
@@ -97,7 +97,7 @@ export default function App() {
     setGrupoActual(grupo);
     setFecha(getFechaHoy());
     setError("");
-    setExito("");
+    setConfirmacion(false);
     setPantalla("pasar");
   };
 
@@ -109,15 +109,27 @@ export default function App() {
     setError("");
   };
 
+  // ---- PANTALLA CONFIRMACION ----
+  if (confirmacion) return (
+    <div style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
+      <div style={{ background: "#00C853", borderRadius: 24, padding: "36px 28px", width: 260, display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+        <div style={{ width: 110, height: 110, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <path d="M10 32L26 50L54 16" stroke="#00C853" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 26, color: "#fff", textAlign: "center", lineHeight: 1.2 }}>
+          Presentismo<br />Actualizado
+        </div>
+      </div>
+    </div>
+  );
+
   // ---- PANTALLA INICIO ----
   if (pantalla === "inicio") return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", padding: "48px 24px 32px", boxSizing: "border-box" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .grupo-btn { transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; width: 100%; text-align: left; }
-        .grupo-btn:active { transform: scale(0.97); opacity: 0.9; }
-      `}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; } .grupo-btn { transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; width: 100%; text-align: left; } .grupo-btn:active { transform: scale(0.97); opacity: 0.9; }`}</style>
 
       <div style={{ textAlign: "center", marginBottom: 36 }}>
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 38, color: "#fff", lineHeight: 1.2 }}>
@@ -127,8 +139,7 @@ export default function App() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
         {GRUPOS.map(g => (
-          <button key={g.id} className="grupo-btn"
-            onClick={() => irAPasar(g)}
+          <button key={g.id} className="grupo-btn" onClick={() => irAPasar(g)}
             style={{ background: g.color, borderRadius: 18, padding: "18px 24px" }}>
             <span style={{ fontFamily: "'Boogaloo', cursive", fontSize: 30, color: "#fff" }}>{g.id}</span>
           </button>
@@ -150,16 +161,7 @@ export default function App() {
   // ---- PANTALLA PASAR PRESENTISMO ----
   if (pantalla === "pasar") return (
     <div style={{ minHeight: "100vh", background: "#000", display: "flex", flexDirection: "column", padding: "48px 24px 32px", boxSizing: "border-box" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .janij-row { cursor: pointer; transition: opacity 0.12s; }
-        .janij-row:active { opacity: 0.7; }
-        .back-btn { cursor: pointer; background: none; border: none; }
-        .back-btn:active { opacity: 0.6; }
-        .guardar-btn { cursor: pointer; border: none; transition: transform 0.15s; width: 100%; }
-        .guardar-btn:active { transform: scale(0.97); }
-      `}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Boogaloo&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; } .janij-row { cursor: pointer; transition: opacity 0.12s; } .janij-row:active { opacity: 0.7; } .back-btn { cursor: pointer; background: none; border: none; } .back-btn:active { opacity: 0.6; } .guardar-btn { cursor: pointer; border: none; transition: transform 0.15s; width: 100%; } .guardar-btn:active { transform: scale(0.97); }`}</style>
 
       <button className="back-btn" onClick={volver}
         style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 14, color: "#555", marginBottom: 20, textAlign: "left" }}>
@@ -174,12 +176,8 @@ export default function App() {
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 12, color: "#555", marginBottom: 8, textTransform: "uppercase", letterSpacing: 2 }}>
           Fecha del shabat (DD/MM)
         </div>
-        <input
-          type="text"
-          value={fecha}
-          onChange={e => setFecha(e.target.value)}
-          placeholder="DD/MM"
-          maxLength={5}
+        <input type="text" value={fecha} onChange={e => setFecha(e.target.value)}
+          placeholder="DD/MM" maxLength={5}
           style={{ width: "100%", background: "#111", border: `1px solid ${grupoActual.color}50`, borderRadius: 12, color: "#fff", padding: "12px 16px", fontSize: 16, fontFamily: "'Nunito', sans-serif", fontWeight: 800 }}
         />
       </div>
@@ -220,11 +218,6 @@ export default function App() {
       {error && (
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13, color: "#ff4444", background: "#1a0000", border: "1px solid #ff444430", borderRadius: 12, padding: "12px 16px", marginTop: 12 }}>
           ✗ {error}
-        </div>
-      )}
-      {exito && (
-        <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 13, color: "#44ff88", background: "#001a0a", border: "1px solid #44ff8830", borderRadius: 12, padding: "12px 16px", marginTop: 12 }}>
-          {exito}
         </div>
       )}
     </div>
