@@ -1,14 +1,23 @@
 import { useState, useEffect } from "react";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1Fazg0AdoT_fp17DFTkjWeGoSkziFeAyi6UIZETyXUnBbbTIi5LE8K4sa0U5pnQqA/exec";
-const SHEETS_URL = "https://docs.google.com/spreadsheets/d/1OOzlVInAELmGd6Tk3vocLgGJ5dj_CU_CCq1cJ1B4z0I";
+// ============================================================
+//  CONFIGURACIÓN — es lo ÚNICO que se cambia para cada coordinador
+// ============================================================
+const CONFIG = {
+  TITULO: ["Presentismos", "Ramah"], // dos líneas del título
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbz1Fazg0AdoT_fp17DFTkjWeGoSkziFeAyi6UIZETyXUnBbbTIi5LE8K4sa0U5pnQqA/exec",
+  SHEETS_URL: "https://docs.google.com/spreadsheets/d/1OOzlVInAELmGd6Tk3vocLgGJ5dj_CU_CCq1cJ1B4z0I",
+  GRUPOS: [
+    // "id" tiene que ser IGUAL al nombre de la pestaña en el Sheet
+    { id: "NEDARIM", color: "#2962FF" },
+    { id: "MESUCAN", color: "#E6A817" },
+    { id: "IAJAD", color: "#D400D4" },
+    { id: "OFEK", color: "#FF6D00" },
+  ],
+};
+// ============================================================
 
-const GRUPOS = [
-  { id: "NEDARIM", color: "#2962FF" },
-  { id: "MESUCAN", color: "#E6A817" },
-  { id: "IAJAD", color: "#D400D4" },
-  { id: "OFEK", color: "#FF6D00" },
-];
+const { TITULO, SCRIPT_URL, SHEETS_URL, GRUPOS } = CONFIG;
 
 function getFechaHoy() {
   const hoy = new Date();
@@ -122,12 +131,12 @@ export default function App() {
         .grupo-btn { transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; width: 100%; text-align: left; }
         .grupo-btn:active { transform: scale(0.97); opacity: 0.9; }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        .confirmacion-box { animation: ${fadeOut ? 'fadeOut 0.8s ease forwards' : 'none'}; }
+        .confirmacion-box { animation: ${fadeOut ? "fadeOut 0.8s ease forwards" : "none"}; }
       `}</style>
 
       <div style={{ textAlign: "center", marginBottom: 36 }}>
         <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 38, color: "#fff", lineHeight: 1.2 }}>
-          Presentismos<br />Ramah
+          {TITULO[0]}<br />{TITULO[1]}
         </div>
       </div>
 
@@ -145,7 +154,7 @@ export default function App() {
           style={{ marginTop: 20, background: "#00C853", borderRadius: 18, padding: "18px 24px", display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
-              <path d="M10 32L26 50L54 16" stroke="#00C853" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10 32L26 50L54 16" stroke="#00C853" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <div style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 20, color: "#fff", lineHeight: 1.2 }}>
